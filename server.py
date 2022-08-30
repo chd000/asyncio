@@ -29,17 +29,21 @@ class Server(asyncio.Protocol):
         else:
             print("IGNORED")
 
-    def make_response(self, message, transport):
+    def make_response(self, message):
         self.timeout = random.uniform(0.01, 1.0)
         time.sleep(self.timeout)
         self.request_num = re.findall(r"\[\s*\+?(-?\d+)\s*\]", message)
         self.ans = "[{}/{}] PONG ({})".format(
-            self.response_counter, self.request_num[0], self.connection_list[0][1]).encode()
+            self.response_counter, self.request_num[0], self.client_number()).encode()
         self.transport.write(self.ans)
         self.response_counter += 1
 
     def client_number(self):
-        pass
+        self.client_num = None
+        for clients in self.connection_list:
+            if clients[1] == self.transport.get_extra_info("peername")[1]:
+                self.client_num = self.connection_list.index(clients) + 1
+        return self.client_num
 
     async def keep_alive_message(self):
         self.keep = "[{}] KEEPALIVE".format(self.connection_list[0]).encode()

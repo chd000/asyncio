@@ -46,9 +46,9 @@ class Server(asyncio.Protocol):
         return self.client_num
 
     async def keep_alive_message(self):
-        self.keep = "[{}] KEEPALIVE".format(self.connection_list[0]).encode()
-        self.transport.write(self.keep)
         await asyncio.sleep(5.0)
+        self.keep = "[{}] KEEPALIVE".format(self.client_number()).encode()
+        self.transport.write(self.keep)
         self.server_tcp_timeout = loop.call_later(
             self.timeout, self.keep_alive_message)
 
